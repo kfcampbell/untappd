@@ -28,7 +28,7 @@ func NewClient(username string, clientID string, clientKey string) *Client {
 
 // GetBeers returns the beers that Xavier has tried
 func (c *Client) GetBeers() (*untappd.BeersBody, error) {
-	url := apiRoot + c.getBeersURLPath() + c.getAuthString()
+	url := apiRoot + c.getBeersURLPath() + c.getAuthString() + "&limit=50"
 	return getBeers(url)
 }
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/kfcampbell/untappd/untappd"
 	"github.com/kfcampbell/untappd/untappd/client"
@@ -46,7 +47,7 @@ func realMain() error {
 		return err
 	}
 
-	for beers.Response.Pagination.NextURL != "" {
+	for strings.Contains(beers.Response.Pagination.NextURL, client.Username) {
 		for i := 0; i < len(beers.Response.BeersList.Items); i++ {
 			checkin, err := client.GetCheckin(beers.Response.BeersList.Items[i].FirstCheckinID)
 			if err != nil {
