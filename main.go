@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/kfcampbell/untappd/untappd"
 	"github.com/kfcampbell/untappd/untappd/client"
@@ -60,6 +61,7 @@ func realMain() error {
 				return err
 			}
 			log.Printf(line)
+			time.Sleep(time.Minute * 2)
 		}
 
 		beers, err = client.GetNextBeers(beers.Response.Pagination.NextURL)
