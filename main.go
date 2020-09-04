@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"path/filepath"
 
+	"github.com/kfcampbell/untappd/untappd/client"
 	"github.com/kfcampbell/untappd/untappd/config"
 )
-
-const apiRoot = "https://api.untappd.com/v4/"
 
 func main() {
 	if err := realMain(); err != nil {
@@ -30,18 +26,13 @@ func realMain() error {
 		return err
 	}
 
-	beersURL := apiRoot + fmt.Sprintf("user/beers/%v", cfg.Username) + fmt.Sprintf("?client_id=%v", cfg.ClientID) + fmt.Sprintf("&client_secret=%v", cfg.ClientKey)
+	client := client.NewClient(cfg.Username, cfg.ClientID, cfg.ClientKey)
+	beers, err := client.GetBeers()
+	if err != nil {
+		return err
+	}
 
-	res, err := http.Get(beersURL)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(body))
+	log.Printf(beers.Response.Pagination.NextURL)
 
 	return nil
 }
