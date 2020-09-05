@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/kfcampbell/untappd/untappd"
 	"github.com/kfcampbell/untappd/untappd/client"
@@ -48,8 +47,12 @@ func realMain() error {
 		return err
 	}
 
-	for strings.Contains(beers.Response.Pagination.NextURL, client.Username) {
-		for i := 0; i < len(beers.Response.BeersList.Items); i++ {
+	nextURL := beers.Response.Pagination.NextURL
+	beersListLength := len(beers.Response.BeersList.Items)
+	for strings.Contains(nextURL, client.Username) {
+		log.Printf("nextURL: %v, username: %v", nextURL, client.Username)
+		for i := 0; i < beersListLength; i++ {
+			log.Printf("i: %v, beersListLength: %v", i, beersListLength)
 			checkin, err := client.GetCheckin(beers.Response.BeersList.Items[i].FirstCheckinID)
 			if err != nil {
 				return nil
@@ -61,13 +64,15 @@ func realMain() error {
 				return err
 			}
 			log.Printf(line)
-			time.Sleep(time.Minute * 2)
+			//time.Sleep(time.Second * 45)
 		}
 
-		beers, err = client.GetNextBeers(beers.Response.Pagination.NextURL)
+		beers, err = client.GetNextBeers(nextURL)
 		if err != nil {
 			return err
 		}
+		nextURL = beers.Response.Pagination.NextURL
+		beersListLength = len(beers.Response.BeersList.Items)
 	}
 
 	return nil
