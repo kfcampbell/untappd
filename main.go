@@ -55,7 +55,7 @@ func realMain() error {
 			log.Printf("i: %v, beersListLength: %v", i, beersListLength)
 			checkin, err := client.GetCheckin(beers.Response.BeersList.Items[i].FirstCheckinID)
 			if err != nil {
-				return nil
+				return err
 			}
 			line := constructCSVLine(checkin.Response.Checkins.Items[0], beers.Response.BeersList.Items[i].Rating)
 

@@ -1,15 +1,17 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
-	"github.com/golang/go/src/encoding/json"
-	"github.com/golang/go/src/log"
 	"github.com/kfcampbell/untappd/untappd"
 )
 
 const apiRoot = "https://api.untappd.com/v4/"
+const venueErrString = "cannot unmarshal array into Go struct field CheckinItem.response.checkins.items.venue of type untappd.Venue"
 
 // Client is an HTTP client for talking to the Untappd API
 type Client struct {
@@ -73,8 +75,13 @@ func (c *Client) GetCheckin(ID int) (untappd.CheckinsBody, error) {
 
 	err = json.NewDecoder(res.Body).Decode(&result)
 	defer res.Body.Close()
-	if err != nil {
-		return *result, err
+	if err != nil && strings.Contains(err.Error(), venueErrString) {
+		badResponseResult := &untappd.CheckinsBodyBadResponse{}
+		err = json.NewDecoder(res.Body).Decode(badResponseResult)
+		if err != nil {
+			return *result, err
+		}
+		result = untappd.AdaptBadResponseCheckin(*badResponseResult)
 	}
 
 	log.Printf("Got checkin for ID: %v, with beer: %v", ID, result.Response.Checkins.Items[0].Beer.Name)

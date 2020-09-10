@@ -53,7 +53,7 @@ type CheckinItem struct {
 	ID      int     `json:"checkin_id"`
 	Date    string  `json:"created_at"`
 	Beer    Beer    `json:"beer"`
-	Venue   Venue   `json:"venue"`
+	Venue   Venue   `json:"venue,omitempty"`
 	Brewery Brewery `json:"brewery"`
 }
 
