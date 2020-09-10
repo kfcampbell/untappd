@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -73,15 +74,22 @@ func (c *Client) GetCheckin(ID int) (untappd.CheckinsBody, error) {
 		return *result, err
 	}
 
-	err = json.NewDecoder(res.Body).Decode(&result)
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return *result, err
+	}
+
+	err = json.Unmarshal(body, result)
 	defer res.Body.Close()
 	if err != nil && strings.Contains(err.Error(), venueErrString) {
 		badResponseResult := &untappd.CheckinsBodyBadResponse{}
-		err = json.NewDecoder(res.Body).Decode(badResponseResult)
+		err = json.Unmarshal(body, badResponseResult)
 		if err != nil {
 			return *result, err
 		}
 		result = untappd.AdaptBadResponseCheckin(*badResponseResult)
+	} else if err != nil {
+		return *result, err
 	}
 
 	log.Printf("Got checkin for ID: %v, with beer: %v", ID, result.Response.Checkins.Items[0].Beer.Name)
